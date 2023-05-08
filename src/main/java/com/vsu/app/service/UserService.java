@@ -1,11 +1,11 @@
 package com.vsu.app.service;
 
 import com.vsu.app.entity.User;
-import com.vsu.app.response.UserDto;
-import com.vsu.app.exception.DBException;
 import com.vsu.app.exception.ValidationException;
 import com.vsu.app.repository.UserRepository;
+import com.vsu.app.response.UserDto;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -13,7 +13,6 @@ import java.util.logging.Logger;
 @Service
 public class UserService {
     private static final Logger LOGGER = Logger.getLogger(UserService.class.getName());
-    public static final int COUNT_UPDATED_ROWS = 1;
     private final UserRepository userRepository;
 
     public UserService(UserRepository userRepository) {
@@ -39,23 +38,19 @@ public class UserService {
     }
 
     public UserDto insertUser(User user) {
-        if (userRepository.insert(user) < COUNT_UPDATED_ROWS) {
-            LOGGER.log(Level.WARNING, "User {0} is not inserted", user);
-            return null;
-        }
-        return fromUserToUserDto(user);
-
+        return fromUserToUserDto(userRepository.insert(user));
     }
 
-    public boolean deleteUser(Long id) {
-        return userRepository.deleteById(id) >= COUNT_UPDATED_ROWS;
+    @Transactional
+    public int deleteUser(Long id) {
+        userRepository.getById(id);
+        return userRepository.deleteById(id);
     }
 
-    public UserDto updateUser(User user) {
-        if (userRepository.updateById(user) < COUNT_UPDATED_ROWS) {
-            LOGGER.log(Level.WARNING, "User {0} is not updated", user);
-            return null;
-        }
+    @Transactional
+    public UserDto updateUser(Long id) {
+        User user = userRepository.getById(id);
+        userRepository.updateById(user);
         return fromUserToUserDto(user);
     }
 

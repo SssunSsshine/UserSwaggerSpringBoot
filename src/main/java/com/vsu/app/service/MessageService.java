@@ -1,10 +1,11 @@
 package com.vsu.app.service;
 
 import com.vsu.app.entity.Message;
-import com.vsu.app.exception.DBException;
+import com.vsu.app.exception.ValidationException;
 import com.vsu.app.repository.MessageRepository;
 import com.vsu.app.response.MessageDto;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -28,27 +29,35 @@ public class MessageService {
         return fromMessageToMessageDto(messageRepository.insert(message));
     }
 
-    public boolean deleteMessage(Long id) {
-        return messageRepository.deleteById(id) >= COUNT_UPDATED_ROWS;
+    @Transactional
+    public int deleteMessage(Long idMessage, Long idUser) {
+        Message message = messageRepository.getById(idMessage);
+        validateMessageForModify(idMessage, idUser, message);
+        return messageRepository.deleteById(idMessage);
     }
 
-    public MessageDto updateMessage(Message message) {
-        if (messageRepository.updateById(message) < COUNT_UPDATED_ROWS){
-            LOGGER.log(Level.WARNING, "Message {0} is not updated", message);
-            return null;
-        }
+    @Transactional
+    public MessageDto updateMessage(Long idMessage, Long idUser) {
+        Message message = messageRepository.getById(idMessage);
+        validateMessageForModify(idMessage, idUser, message);
+        messageRepository.updateById(message);
         return fromMessageToMessageDto(message);
+    }
+
+    private static void validateMessageForModify(Long idMessage, Long idUser, Message message) {
+        if (!message.getIdUser().equals(idUser)) {
+            LOGGER.log(Level.WARNING, String.format("User with id {0} did not send message with id {1}", idUser, idMessage));
+            throw new ValidationException("User ids do not match");
+        }
     }
 
     private MessageDto fromMessageToMessageDto(Message message) {
         return MessageDto.builder()
                 .id(message.getId())
-                .id_user(message.getId_user())
+                .idUser(message.getIdUser())
                 .text(message.getText())
-                .time_creation(message.getTime_creation())
+                .timeCreation(message.getTimeCreation())
                 .build();
     }
-
-
 }
 

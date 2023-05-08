@@ -2,13 +2,17 @@ package com.vsu.app.repository;
 
 import com.vsu.app.entity.User;
 import com.vsu.app.exception.DBException;
+import com.vsu.app.exception.RecordNotFoundException;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
 
 import java.sql.Date;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -45,24 +49,28 @@ public class UserRepository {
         try {
             return jdbcTemplate.queryForObject(SELECT_BY_ID_QUERY, (rs, rowNum) -> getUserByResultSet(rs), id);
         } catch (DataAccessException e) {
-            LOGGER.log(Level.WARNING, "User with id {0} is not selected", id);
-            throw new DBException(e);
+            LOGGER.log(Level.WARNING, "User with id {0} is not found", id);
+            throw new RecordNotFoundException("User is not found");
         }
-
     }
 
     public User getByEmail(String email) {
         try {
             return jdbcTemplate.queryForObject(SELECT_BY_EMAIL_QUERY, (rs, rowNum) -> getUserByResultSet(rs), email);
         } catch (DataAccessException e) {
-            LOGGER.log(Level.WARNING, "User with email {0} is not selected", email);
-            throw new DBException(e);
+            LOGGER.log(Level.WARNING, "User with email {0} is not found", email);
+            throw new RecordNotFoundException("User is not found");
         }
     }
 
-    public int insert(User user) {
+    public User insert(User user) {
         try {
-            return jdbcTemplate.update(INSERT_QUERY, user.getSurname(), user.getName(), Date.valueOf(user.getBirthday()), user.getPhone(), user.getEmail(), user.getPassword());
+            SimpleJdbcInsert insertContactList = new SimpleJdbcInsert(jdbcTemplate)
+                    .withTableName("public.profile").usingColumns("surname_user", "name_user", "birthday_user",
+                            "phone_user", "email_user", "password_user")
+                    .usingGeneratedKeyColumns("id_user");
+
+            return getById((Long) insertContactList.executeAndReturnKey(getInsertParams(user)));
         } catch (DataAccessException e) {
             LOGGER.log(Level.WARNING, "User with email {0} is not inserted", user.getEmail());
             throw new DBException(e);
@@ -71,7 +79,8 @@ public class UserRepository {
 
     public int updateById(User user) {
         try {
-            return jdbcTemplate.update(UPDATE_QUERY, user.getSurname(), user.getName(), Date.valueOf(user.getBirthday()), user.getPhone(), user.getEmail(), user.getPassword(), user.getId());
+            return jdbcTemplate.update(UPDATE_QUERY, user.getSurname(), user.getName(), Date.valueOf(user.getBirthday()),
+                    user.getPhone(), user.getEmail(), user.getPassword(), user.getId());
         } catch (DataAccessException e) {
             LOGGER.log(Level.WARNING, "User with id {0} is not updated", user.getId());
             throw new DBException(e);
@@ -98,4 +107,15 @@ public class UserRepository {
                 rs.getString(7));
     }
 
+
+    private static Map<String, Object> getInsertParams(User user) {
+        Map<String, Object> insertParameters = new HashMap<>();
+        insertParameters.put("surname_user", user.getSurname());
+        insertParameters.put("name_user", user.getName());
+        insertParameters.put("birthday_user", Date.valueOf(user.getBirthday()));
+        insertParameters.put("phone_user", user.getPhone());
+        insertParameters.put("email_user", user.getEmail());
+        insertParameters.put("password_user", user.getPassword());
+        return insertParameters;
+    }
 }

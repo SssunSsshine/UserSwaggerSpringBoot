@@ -29,7 +29,7 @@ public class MessageController {
 
     @PostMapping("/messages/insert")
     public ResponseEntity<Object> insert(@RequestBody @Valid CreateMessageRequest messageRequest) {
-        MessageDto message = messageService.insertMessage(new Message(messageRequest.getId_user(),
+        MessageDto message = messageService.insertMessage(new Message(messageRequest.getIdUser(),
                 messageRequest.getText()));
 
         if (message != null)
@@ -38,30 +38,14 @@ public class MessageController {
 
     }
 
-    @DeleteMapping("/messages/delete/{id}")
-    public ResponseEntity<Object> delete(@PathVariable String id) {
-        Long idL = Long.parseLong(id);
-        if (messageService.deleteMessage(idL))
-            return new ResponseEntity<>("Message is deleted successfully", HttpStatus.OK);
-        return new ResponseEntity<>("Message is not deleted", HttpStatus.INTERNAL_SERVER_ERROR);
+    @DeleteMapping("users/{idUser}/messages/delete/{idMessage}")
+    public String delete(@PathVariable Long idUser, @PathVariable Long idMessage) {
+        messageService.deleteMessage(idMessage, idUser);
+        return "Message is deleted successfully";
     }
 
-    @PostMapping("/messages/update/{id}")
-    public ResponseEntity<Object> update(@PathVariable String id, @RequestBody @Valid CreateMessageRequest messageRequest) {
-        Long idL = Long.parseLong(id);
-        MessageDto message = messageService.getById(idL);
-
-        if (message == null) {
-            return new ResponseEntity<>("Message is not found", HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-        Message updatedMessage = new Message(message.getId(), messageRequest.getId_user(),
-                messageRequest.getText(), message.getTime_creation());
-
-        MessageDto updMessage = messageService.updateMessage(updatedMessage);
-        if (updMessage != null)
-            return new ResponseEntity<>(updMessage, HttpStatus.OK);
-        return new ResponseEntity<>("Message is not updated", HttpStatus.INTERNAL_SERVER_ERROR);
+    @PostMapping("users/{idUser}/messages/update/{idMessage}")
+    public MessageDto update(@PathVariable Long idUser, @PathVariable Long idMessage, @RequestBody @Valid CreateMessageRequest messageRequest) {
+        return messageService.updateMessage(idMessage, idUser);
     }
-
-
 }

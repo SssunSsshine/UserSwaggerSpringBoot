@@ -1,9 +1,8 @@
 package com.vsu.app.repository;
 
 import com.vsu.app.entity.Message;
-
 import com.vsu.app.exception.DBException;
-import com.vsu.app.service.MessageService;
+import com.vsu.app.exception.RecordNotFoundException;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
@@ -21,11 +20,6 @@ public class MessageRepository {
     private static final Logger LOGGER = Logger.getLogger(MessageRepository.class.getName());
     private static final String SELECT_BY_ID_QUERY =
             "SELECT * FROM public.message WHERE id_message = ?";
-
-    private static final String INSERT_QUERY =
-            "INSERT INTO public.message(" +
-                    "id_profile, text_message) " +
-                    "VALUES (?, ?)";
     private static final String UPDATE_QUERY =
             "UPDATE public.message " +
                     "SET id_profile=?, text_message=? " +
@@ -44,8 +38,8 @@ public class MessageRepository {
         try {
             return jdbcTemplate.queryForObject(SELECT_BY_ID_QUERY, (rs, rowNum) -> getMessageByResultSet(rs), id);
         } catch (DataAccessException e) {
-            LOGGER.log(Level.WARNING, "Message with id {0} is not selected", id);
-            throw new DBException(e);
+            LOGGER.log(Level.WARNING, "Message with id {0} is not found", id);
+            throw new RecordNotFoundException("Message is not found");
         }
 
     }
@@ -56,8 +50,8 @@ public class MessageRepository {
                     .withTableName("public.message").usingColumns("id_profile", "text_message")
                     .usingGeneratedKeyColumns("id_message");
 
-            Map<String,Object> insertParameters = new HashMap<>();
-            insertParameters.put("id_profile", message.getId_user());
+            Map<String, Object> insertParameters = new HashMap<>();
+            insertParameters.put("id_profile", message.getIdUser());
             insertParameters.put("text_message", message.getText());
             return getById((Long) insertContactList.executeAndReturnKey(insertParameters));
         } catch (DataAccessException e) {
@@ -68,7 +62,7 @@ public class MessageRepository {
 
     public int updateById(Message message) {
         try {
-            return jdbcTemplate.update(UPDATE_QUERY, message.getId_user(), message.getText(), message.getId());
+            return jdbcTemplate.update(UPDATE_QUERY, message.getIdUser(), message.getText(), message.getId());
         } catch (DataAccessException e) {
             LOGGER.log(Level.WARNING, "Message with id {0} is not updated", message.getId());
             throw new DBException(e);

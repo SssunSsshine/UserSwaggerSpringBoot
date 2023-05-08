@@ -31,8 +31,9 @@ public class CreateUserRequest {
     private String email;
 
     @NotBlank(message = "Phone cannot be blank")
-    @Min(value = 11, message = "Number should contain 11 digits")
-    @Digits(message="Number should contain 11 digits.", fraction = 0, integer = 11)
+    /*@Min(value = 11, message = "Phone should contain 11 digits")
+    @Digits(message="Phone should contain 11 digits.", fraction = 0, integer = 11)*/
+    @Pattern(regexp = "^(\\+\\d{1,3}( )?)?((\\(\\d{3}\\))|\\d{3})[- .]?\\d{3}[- .]?\\d{4}$", message = "Phone format is invalid")
     private String phone;
 
     @NotBlank(message = "Password cannot be blank")

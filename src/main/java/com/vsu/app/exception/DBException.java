@@ -1,7 +1,6 @@
 package com.vsu.app.exception;
 
-public class DBException extends RuntimeException{
-
+public class DBException extends RuntimeException {
     public DBException(Exception e) {
         super(e);
     }

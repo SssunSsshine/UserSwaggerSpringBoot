@@ -2,6 +2,7 @@ package com.vsu.app.controller;
 
 import com.vsu.app.entity.Message;
 import com.vsu.app.request.CreateMessageRequest;
+import com.vsu.app.request.CreateMessageRequestForUpdate;
 import com.vsu.app.response.MessageDto;
 import com.vsu.app.service.MessageService;
 import org.springframework.http.HttpStatus;
@@ -45,7 +46,7 @@ public class MessageController {
     }
 
     @PostMapping("users/{idUser}/messages/update/{idMessage}")
-    public MessageDto update(@PathVariable Long idUser, @PathVariable Long idMessage, @RequestBody @Valid CreateMessageRequest messageRequest) {
+    public MessageDto update(@PathVariable Long idUser, @PathVariable Long idMessage, @RequestBody @Valid CreateMessageRequestForUpdate messageRequest) {
         return messageService.updateMessage(idMessage, idUser);
     }
 }

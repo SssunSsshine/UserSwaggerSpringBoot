@@ -19,14 +19,14 @@ import java.util.logging.Logger;
 public class MessageRepository {
     private static final Logger LOGGER = Logger.getLogger(MessageRepository.class.getName());
     private static final String SELECT_BY_ID_QUERY =
-            "SELECT * FROM public.message WHERE id_message = ?";
+            "SELECT * FROM message WHERE id_message = ?";
     private static final String UPDATE_QUERY =
-            "UPDATE public.message " +
+            "UPDATE message " +
                     "SET id_profile=?, text_message=? " +
                     "WHERE id_message = ?";
 
     private static final String DELETE_BY_ID_QUERY =
-            "DELETE FROM public.message " +
+            "DELETE FROM message " +
                     "WHERE id_message = ?";
     private final JdbcTemplate jdbcTemplate;
 
@@ -47,7 +47,7 @@ public class MessageRepository {
     public Message insert(Message message) {
         try {
             SimpleJdbcInsert insertContactList = new SimpleJdbcInsert(jdbcTemplate)
-                    .withTableName("public.message").usingColumns("id_profile", "text_message")
+                    .withTableName("message").usingColumns("id_profile", "text_message")
                     .usingGeneratedKeyColumns("id_message");
 
             Map<String, Object> insertParameters = new HashMap<>();

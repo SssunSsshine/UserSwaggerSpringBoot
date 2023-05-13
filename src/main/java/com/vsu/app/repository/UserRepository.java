@@ -66,7 +66,7 @@ public class UserRepository {
     public User insert(User user) {
         try {
             SimpleJdbcInsert insertContactList = new SimpleJdbcInsert(jdbcTemplate)
-                    .withTableName("public.profile").usingColumns("surname_user", "name_user", "birthday_user",
+                    .withTableName("profile").usingColumns("surname_user", "name_user", "birthday_user",
                             "phone_user", "email_user", "password_user")
                     .usingGeneratedKeyColumns("id_user");
 

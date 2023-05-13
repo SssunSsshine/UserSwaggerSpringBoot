@@ -21,20 +21,8 @@ public class GlobalHandler {
                 .body(Map.of("errors", errors));
     }
 
-    @ExceptionHandler(DBException.class)
-    ResponseEntity<Object> handleDBException(DBException e) {
-        return ResponseEntity.badRequest()
-                .body(Map.of("error", e.getMessage()));
-    }
-
-    @ExceptionHandler(ValidationException.class)
-    ResponseEntity<Object> handleValidationException(ValidationException e) {
-        return ResponseEntity.badRequest()
-                .body(Map.of("error", e.getMessage()));
-    }
-
-    @ExceptionHandler(RecordNotFoundException.class)
-    ResponseEntity<Object> handleRecordNotFoundException(RecordNotFoundException e) {
+    @ExceptionHandler({DBException.class, RecordNotFoundException.class, ValidationException.class})
+    ResponseEntity<Object> handleDBException(Exception e) {
         return ResponseEntity.badRequest()
                 .body(Map.of("error", e.getMessage()));
     }

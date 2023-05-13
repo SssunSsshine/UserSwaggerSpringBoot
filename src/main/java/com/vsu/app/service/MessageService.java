@@ -46,7 +46,7 @@ public class MessageService {
 
     private static void validateMessageForModify(Long idMessage, Long idUser, Message message) {
         if (!message.getIdUser().equals(idUser)) {
-            LOGGER.log(Level.WARNING, String.format("User with id {0} did not send message with id {1}", idUser, idMessage));
+            LOGGER.log(Level.WARNING, String.format("User with id {%s} did not send message with id {%s}", idUser, idMessage));
             throw new ValidationException("User ids do not match");
         }
     }

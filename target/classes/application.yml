@@ -5,7 +5,7 @@ spring:
     driver-class-name: org.postgresql.Driver
     url: jdbc:postgresql://localhost:5432/ForJava
     username: postgres
-    password: sasha2003
+    password: postgres
   mvc:
     pathmatch:
       matching-strategy: ant_path_matcher
